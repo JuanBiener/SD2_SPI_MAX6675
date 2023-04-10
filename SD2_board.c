@@ -53,6 +53,7 @@
 #define SPI_MASTER_CLK_FREQ     CLOCK_GetFreq(kCLOCK_BusClk)
 
 /*==================[internal data declaration]==============================*/
+
 static const board_gpioInfo_type board_gpioLeds[] =
 {
     {PORTE, GPIOE, 29},     /* LED ROJO */
@@ -63,12 +64,6 @@ static const board_gpioInfo_type board_gpioSw[] =
 {
     {PORTC, GPIOC, 3},      /* SW1 */
     {PORTC, GPIOC, 12},     /* SW3 */
-};
-
-static const board_gpioInfo_type board_gpioOled[] =
-{
-    {PORTC, GPIOC, 0},      /* RST */
-    {PORTC, GPIOC, 7},      /* DATA/CMD */
 };
 
 /*==================[internal functions declaration]=========================*/
@@ -83,6 +78,7 @@ static volatile bool masterFinished = false;
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+
 void board_init(void)
 {
 	int32_t i;
@@ -97,7 +93,7 @@ void board_init(void)
 	};
 
 	const port_pin_config_t port_led_config = {
-			/* Internal pull-up/down resistor is disabled */
+		/* Internal pull-up/down resistor is disabled */
 		.pullSelect = kPORT_PullDisable,
 		/* Slow slew rate is configured */
 		.slewRate = kPORT_SlowSlewRate,
@@ -131,14 +127,14 @@ void board_init(void)
 	CLOCK_EnableClock(kCLOCK_PortD);
 	CLOCK_EnableClock(kCLOCK_PortE);
 
-	/* inicialización de leds */
+	/* Inicialización de leds */
 	for (i = 0 ; i < BOARD_LED_ID_TOTAL ; i++)
 	{
 		PORT_SetPinConfig(board_gpioLeds[i].port, board_gpioLeds[i].pin, &port_led_config);
 		GPIO_PinInit(board_gpioLeds[i].gpio, board_gpioLeds[i].pin, &gpio_led_config);
 	}
 
-	/* inicialización de SWs */
+	/* Inicialización de SWs */
 	for (i = 0 ; i < BOARD_SW_ID_TOTAL ; i++)
 	{
 		PORT_SetPinConfig(board_gpioSw[i].port, board_gpioSw[i].pin, &port_sw_config);
@@ -148,7 +144,7 @@ void board_init(void)
 	/*Inicialización de los pines GPIO necesarios para manejar el display OLED*/
 
 	const port_pin_config_t port_oled_config = {
-			/* Internal pull-up/down resistor is disabled */
+		/* Internal pull-up/down resistor is disabled */
 		.pullSelect = kPORT_PullDisable,
 		/* Fast slew rate is configured */
 		.slewRate = kPORT_FastSlewRate,
@@ -165,11 +161,6 @@ void board_init(void)
 		.outputLogic = 0,
 		.pinDirection = kGPIO_DigitalOutput,
 	};
-
-	PORT_SetPinConfig(PORTC, 0, &port_oled_config);
-	PORT_SetPinConfig(PORTC, 7, &port_oled_config);
-	GPIO_PinInit(GPIOC, 0, &gpio_oled_config);		//OLED RESET
-	GPIO_PinInit(GPIOC, 7, &gpio_oled_config);      //OLED DATA/CMD
 
 	PORT_SetPinConfig(PORTE, 16, &port_oled_config);
 	GPIO_PinInit(GPIOE, 16, &gpio_oled_config);
@@ -196,17 +187,13 @@ void board_setLed(board_ledId_enum id, board_ledMsg_enum msg)
     }
 }
 
-void board_setOledPin(board_oledPin_enum oledPin, uint8_t state)
-{
-	GPIO_PinWrite(board_gpioOled[oledPin].gpio, board_gpioOled[oledPin].pin, state);
-}
-
 bool board_getSw(board_swId_enum id)
 {
     return !GPIO_ReadPinInput(board_gpioSw[id].gpio, board_gpioSw[id].pin);
 }
 
 void board_configSPI0(){
+
 	const port_pin_config_t port_spi_config = {
 		/* Internal pull-up resistor is disabled */
 		.pullSelect = kPORT_PullDisable,
@@ -219,35 +206,18 @@ void board_configSPI0(){
 		/* Pin is configured as SPI0_x */
 		.mux = kPORT_MuxAlt2,
 	};
-	//PORT_SetPinConfig(PORTE, 16, &port_spi_config); //SPI0_SS
-	PORT_SetPinConfig(PORTE, 17, &port_spi_config); //SPI0_SCK
-	PORT_SetPinConfig(PORTE, 18, &port_spi_config); //SPI0_MOSI
-	PORT_SetPinConfig(PORTE, 19, &port_spi_config); //SPI0_MOSI
+
+	//PORT_SetPinConfig(PORTE, 16, &port_spi_config); // SPI0_PCS0 o SPI0_SS
+	//GPIO_PinInit(GPIOE, 16, &gpio_oled_config);
+	PORT_SetPinConfig(PORTE, 17, &port_spi_config); // SPI0_SCK
+	PORT_SetPinConfig(PORTE, 18, &port_spi_config); // SPI0_MOSI
+	PORT_SetPinConfig(PORTE, 19, &port_spi_config); // SPI0_MOSI
 
 	CLOCK_EnableClock(kCLOCK_Spi0);
 
 	spi_master_config_t userConfig;
 
 	SPI_MasterGetDefaultConfig(&userConfig);
-
-	/*
-	userConfig.enableMaster         = true;
-	userConfig.enableStopInWaitMode = false;
-	userConfig.polarity             = kSPI_ClockPolarityActiveHigh;
-	userConfig.phase                = kSPI_ClockPhaseFirstEdge;
-	userConfig.direction            = kSPI_MsbFirst;
-	userConfig.dataMode 			 = kSPI_8BitMode;
-	userConfig.txWatermark 		 = kSPI_TxFifoOneHalfEmpty;
-	userConfig.rxWatermark 		 = kSPI_RxFifoOneHalfFull;
-	userConfig.pinMode      		 = kSPI_PinModeNormal;
-	userConfig.outputMode   		 = kSPI_SlaveSelectAutomaticOutput;
-	userConfig.baudRate_Bps 		 = 500000U;
-	*/
-
-	userConfig.polarity             = kSPI_ClockPolarityActiveHigh;
-	userConfig.phase                = kSPI_ClockPhaseFirstEdge;
-	userConfig.baudRate_Bps 		= 1000000U;
-
 	SPI_MasterInit(SPI_MASTER, &userConfig, SPI_MASTER_CLK_FREQ);
     SPI_MasterTransferCreateHandle(SPI_MASTER, &handle, NULL, NULL);
 }
@@ -271,6 +241,5 @@ void board_SPIReceive(uint8_t* buf, size_t len){
 
 	SPI_MasterTransferBlocking(SPI_MASTER, &xfer);
 
-	//return xfer.rxData;
 }
 /*==================[end of file]============================================*/

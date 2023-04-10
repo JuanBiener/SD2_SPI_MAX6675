@@ -1,7 +1,11 @@
-/* Copyright 2023, DSI FCEIA UNR - Sistemas Digitales 2
+/*****************************************************************************
+ *   MAX6675.c:  Source code file for MAX6675 Termocuple Controler
+ *
+ *   Copyright 2009, Embedded Artists AB
+ *   Copyright 2023, DSI FCEIA UNR - Sistemas Digitales 2
  *    DSI: http://www.dsi.fceia.unr.edu.ar/
- * Copyright 2023, Guido Cicconi
- * All rights reserved.
+ *   Copyright 2023, Juan Ignacio Biener
+ *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,11 +46,10 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define TIEMPO_MUESTRAS 500
+#define SPI_MASTER_SSEL_GPIO GPIOE
+#define SPI_MASTER_SSEL_PIN 16U
 
 /*==================[internal data declaration]==============================*/
-
-static int32_t Temp_Max; // Temporizador para la medicion temperatura
 
 /*==================[internal functions declaration]=========================*/
 
@@ -58,28 +61,37 @@ static int32_t Temp_Max; // Temporizador para la medicion temperatura
 
 /*==================[external functions definition]==========================*/
 
-int main(void) {
+void MAX6675_ReadTemp(void) {
 
-    board_init();
-    board_configSPI0();
-	SysTick_Config(SystemCoreClock / 1000U);
-	Temp_Max = TIEMPO_MUESTRAS;
+	MAX6675_Temp_t temp_MAX6675;
+	uint8_t data [] = {1,2};
 
-    while(1) {
+	/* Assert the chip select for the MAX6675 */
+    GPIO_PinWrite(SPI_MASTER_SSEL_GPIO, SPI_MASTER_SSEL_PIN, 0U);
 
-    	if (Temp_Max == 0) {
-    		Temp_Max = TIEMPO_MUESTRAS;
-    		MAX6675_ReadTemp();
-    	}
-    }
-    return 0 ;
-}
+    /* Perform the transfer */
+    board_SPIReceive(data, 2);
 
-void SysTick_Handler(void)
-{
-	//key_periodicTask1ms();
+    /* De-assert the chip select for the MAX6675 */
+    GPIO_PinWrite(SPI_MASTER_SSEL_GPIO, SPI_MASTER_SSEL_PIN, 1U);
 
-	if (Temp_Max > 0) {
-		Temp_Max--;
-	}
+    /* Convert the received data to temperature */
+    uint16_t tempData = (data[0] << 8) | data[1];
+    temp_MAX6675.temp = (tempData >> 3) * 0.25f;
+    temp_MAX6675.valor = temp_MAX6675.temp*100;
+    temp_MAX6675.cifra1 = (uint16_t)temp_MAX6675.valor/1000;
+    temp_MAX6675.cifra2 = (uint16_t)temp_MAX6675.valor%1000/100;
+    temp_MAX6675.cifra3 = (uint16_t)temp_MAX6675.valor%1000%100/10;
+    temp_MAX6675.cifra4 = (uint16_t)temp_MAX6675.valor%1000%100%10;
+
+	/* Print the temperature to the serial terminal */
+
+	char buffer[100];
+	snprintf(buffer, sizeof(buffer),
+			"Temperature: %d%d.%d%d C\r\n",
+			temp_MAX6675.cifra1, temp_MAX6675.cifra2,
+			temp_MAX6675.cifra3, temp_MAX6675.cifra4
+			);
+
+	PRINTF("%s", buffer);
 }

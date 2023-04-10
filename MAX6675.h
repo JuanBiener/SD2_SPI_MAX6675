@@ -1,10 +1,10 @@
 /*****************************************************************************
- *   oled.h:  Header file for SSD1306 OLED Display
+ *   MAX6675.h:  Header file for MAX6675 Termocuple Controler
  *
  *   Copyright 2009, Embedded Artists AB
  *   Copyright 2023, DSI FCEIA UNR - Sistemas Digitales 2
  *    DSI: http://www.dsi.fceia.unr.edu.ar/
- *   Copyright 2023, Guido Cicconi
+ *   Copyright 2023, Juan Ignacio Biener
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef __OLED_H
-#define __OLED_H
+#ifndef __MAX6675_H
+#define __MAX6675_H
 
 /*==================[inclusions]=============================================*/
 #include <stdint.h>
@@ -46,35 +46,29 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-typedef enum
-{
-    OLED_COLOR_BLACK,
-    OLED_COLOR_WHITE
-} oled_color_t;
-
-#define OLED_DISPLAY_WIDTH  128
-#define OLED_DISPLAY_HEIGHT 64
 
 /*==================[typedef]================================================*/
+
+typedef struct
+{
+	uint8_t cifra1;
+    uint8_t cifra2;
+    uint8_t cifra3;
+    uint8_t cifra4;
+    float valor;
+    float temp;
+
+} MAX6675_Temp_t;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions definition]==========================*/
 
-void oled_init (void);
-void oled_putPixel(uint8_t x, uint8_t y, oled_color_t color);
-void oled_line(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, oled_color_t color);
-void oled_circle(uint8_t x0, uint8_t y0, uint8_t r, oled_color_t color);
-void oled_rect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, oled_color_t color);
-void oled_fillRect(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, oled_color_t color);
-void oled_clearScreen(oled_color_t color);
-void oled_putString(uint8_t x, uint8_t y, uint8_t *pStr, oled_color_t fb, oled_color_t bg);
-uint8_t oled_putChar(uint8_t x, uint8_t y, uint8_t ch, oled_color_t fb, oled_color_t bg);
-void oled_setContrast(uint8_t contrast);
+void MAX6675_ReadTemp(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* end __OLED_H */
+#endif /* end __MAX6675_H */
