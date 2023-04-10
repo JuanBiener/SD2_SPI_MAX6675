@@ -48,6 +48,9 @@
 
 #define SPI_MASTER_SSEL_GPIO GPIOE
 #define SPI_MASTER_SSEL_PIN 16U
+#define SENSOR_OPEN 1
+#define SENSOR_OK 0
+#define MASK_SENS_OPEN 0b00000100
 
 /*==================[internal data declaration]==============================*/
 
@@ -64,7 +67,7 @@
 void MAX6675_ReadTemp(void) {
 
 	MAX6675_Temp_t temp_MAX6675;
-	uint8_t data [] = {1,2};
+	uint8_t data [] = {0,0};
 
 	/* Assert the chip select for the MAX6675 */
     GPIO_PinWrite(SPI_MASTER_SSEL_GPIO, SPI_MASTER_SSEL_PIN, 0U);
@@ -77,6 +80,7 @@ void MAX6675_ReadTemp(void) {
 
     /* Convert the received data to temperature */
     uint16_t tempData = (data[0] << 8) | data[1];
+    temp_MAX6675.sensor = data[0] & MASK_SENS_OPEN;
     temp_MAX6675.temp = (tempData >> 3) * 0.25f;
     temp_MAX6675.valor = temp_MAX6675.temp*100;
     temp_MAX6675.cifra1 = (uint16_t)temp_MAX6675.valor/1000;
@@ -87,11 +91,16 @@ void MAX6675_ReadTemp(void) {
 	/* Print the temperature to the serial terminal */
 
 	char buffer[100];
-	snprintf(buffer, sizeof(buffer),
+	if (temp_MAX6675.sensor) {
+		snprintf(buffer, sizeof(buffer),"Sensor Desconectado \r\n");
+		PRINTF("%s", buffer);
+	}
+	else {
+		snprintf(buffer, sizeof(buffer),
 			"Temperature: %d%d.%d%d C\r\n",
 			temp_MAX6675.cifra1, temp_MAX6675.cifra2,
 			temp_MAX6675.cifra3, temp_MAX6675.cifra4
 			);
-
-	PRINTF("%s", buffer);
+		PRINTF("%s", buffer);
+	}
 }

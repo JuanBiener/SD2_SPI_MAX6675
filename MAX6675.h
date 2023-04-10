@@ -51,6 +51,7 @@ extern "C" {
 
 typedef struct
 {
+	bool sensor;
 	uint8_t cifra1;
     uint8_t cifra2;
     uint8_t cifra3;
