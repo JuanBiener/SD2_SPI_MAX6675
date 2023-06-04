@@ -47,6 +47,7 @@
 /*==================[internal data declaration]==============================*/
 
 static int32_t Temp_Max; // Temporizador para la medicion temperatura
+static MAX6675_Temp_t temp_MAX6675;
 
 /*==================[internal functions declaration]=========================*/
 
@@ -69,7 +70,8 @@ int main(void) {
 
     	if (Temp_Max == 0) {
     		Temp_Max = TIEMPO_MUESTRAS;
-    		MAX6675_ReadTemp();
+    		MAX6675_ReadTemp(&temp_MAX6675);
+    		MAX6675_PrintTemp(&temp_MAX6675);
     	}
     }
     return 0 ;

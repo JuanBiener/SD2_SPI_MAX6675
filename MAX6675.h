@@ -65,7 +65,8 @@ typedef struct
 
 /*==================[external functions definition]==========================*/
 
-void MAX6675_ReadTemp(void);
+void MAX6675_ReadTemp(MAX6675_Temp_t *temp_MAX6675);
+void MAX6675_PrintTemp(MAX6675_Temp_t *temp_MAX6675);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

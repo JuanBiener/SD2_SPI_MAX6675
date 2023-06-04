@@ -64,9 +64,8 @@
 
 /*==================[external functions definition]==========================*/
 
-void MAX6675_ReadTemp(void) {
+void MAX6675_ReadTemp(MAX6675_Temp_t *temp_MAX6675) {
 
-	MAX6675_Temp_t temp_MAX6675;
 	uint8_t data [] = {0,0};
 
 	/* Assert the chip select for the MAX6675 */
@@ -80,27 +79,34 @@ void MAX6675_ReadTemp(void) {
 
     /* Convert the received data to temperature */
     uint16_t tempData = (data[0] << 8) | data[1];
-    temp_MAX6675.sensor = data[0] & MASK_SENS_OPEN;
-    temp_MAX6675.temp = (tempData >> 3) * 0.25f;
-    temp_MAX6675.valor = temp_MAX6675.temp*100;
-    temp_MAX6675.cifra1 = (uint16_t)temp_MAX6675.valor/1000;
-    temp_MAX6675.cifra2 = (uint16_t)temp_MAX6675.valor%1000/100;
-    temp_MAX6675.cifra3 = (uint16_t)temp_MAX6675.valor%1000%100/10;
-    temp_MAX6675.cifra4 = (uint16_t)temp_MAX6675.valor%1000%100%10;
+    temp_MAX6675->sensor = data[0] & MASK_SENS_OPEN;
+    temp_MAX6675->temp = (tempData >> 3) * 0.25f;
 
-	/* Print the temperature to the serial terminal */
+}
 
-	char buffer[100];
-	if (temp_MAX6675.sensor) {
-		snprintf(buffer, sizeof(buffer),"Sensor Desconectado \r\n");
-		PRINTF("%s", buffer);
-	}
-	else {
-		snprintf(buffer, sizeof(buffer),
-			"Temperature: %d%d.%d%d C\r\n",
-			temp_MAX6675.cifra1, temp_MAX6675.cifra2,
-			temp_MAX6675.cifra3, temp_MAX6675.cifra4
-			);
-		PRINTF("%s", buffer);
-	}
+void MAX6675_PrintTemp(MAX6675_Temp_t *temp_MAX6675){
+
+		/*Print the temperature to the serial terminal*/
+		char buffer[100];
+
+	 	temp_MAX6675->valor = temp_MAX6675->temp*100;
+	    temp_MAX6675->cifra1 = (uint16_t)temp_MAX6675->valor/1000;
+	    temp_MAX6675->cifra2 = (uint16_t)temp_MAX6675->valor%1000/100;
+	    temp_MAX6675->cifra3 = (uint16_t)temp_MAX6675->valor%1000%100/10;
+	    temp_MAX6675->cifra4 = (uint16_t)temp_MAX6675->valor%1000%100%10;
+
+
+		if (temp_MAX6675->sensor) {
+			snprintf(buffer, sizeof(buffer),"Sensor Desconectado \r\n");
+			PRINTF("%s", buffer);
+		}
+		else {
+			snprintf(buffer, sizeof(buffer),
+				"Temperature: %d%d.%d%d C\r\n",
+				temp_MAX6675->cifra1, temp_MAX6675->cifra2,
+				temp_MAX6675->cifra3, temp_MAX6675->cifra4
+				);
+			PRINTF("%s", buffer);
+		}
+
 }
