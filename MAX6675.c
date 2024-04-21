@@ -83,7 +83,8 @@ void MAX6675_SPI_Transfer(void){
 
 }
 
-uint16_t MAX6675_Read_Raw_Temp(void) {
+
+uint16_t MAX6675_Read_Raw_Data(void) {
 
 	MAX6675_SPI_Transfer();
 
@@ -93,7 +94,7 @@ uint16_t MAX6675_Read_Raw_Temp(void) {
 
 float MAX6675_Read_Float_Temp(void){
 
-	return ((MAX6675_Read_Raw_Temp()>> 3) * 0.25f);
+	return ((MAX6675_Read_Raw_Data()>> 3) * 0.25f);
 
 }
 

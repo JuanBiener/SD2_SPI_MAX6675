@@ -55,7 +55,7 @@ extern "C" {
 
 void MAX6675_Init(void);
 float MAX6675_Read_Float_Temp(void);
-uint16_t MAX6675_Read_Raw_Temp(void);
+uint16_t MAX6675_Read_Raw_Data(void);
 bool MAX6675_Get_Sensor(void);
 
 /*==================[cplusplus]==============================================*/

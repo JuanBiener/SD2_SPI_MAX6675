@@ -47,7 +47,8 @@
 /*==================[internal data declaration]==============================*/
 
 static int32_t Time_Temp_Max; // Temporizador para la medicion temperatura
-static float Temp_MAX6675;
+static float Float_Temp_MAX6675=0.0;
+static uint16_t Raw_Data_MAX6675=0;
 static char buffer[100];
 
 /*==================[internal functions declaration]=========================*/
@@ -95,13 +96,20 @@ int main(void) {
 
     	if (Time_Temp_Max == 0) {
     		Time_Temp_Max = TIEMPO_MUESTRAS;
-    		Temp_MAX6675 = MAX6675_Read_Float_Temp();
-    		if (MAX6675_Get_Sensor())
+    		//Float_Temp_MAX6675 = MAX6675_Read_Float_Temp();
+    		Raw_Data_MAX6675 = MAX6675_Read_Raw_Data();
+    		/*if (MAX6675_Get_Sensor())
     		{
 				snprintf(buffer, sizeof(buffer),"Sensor Desconectado \r\n");
 				PRINTF("%s", buffer);
 			}
-    		else Print_MAX6675_Temp(Temp_MAX6675);
+    		else {
+    			snprintf(buffer, sizeof(buffer),"Raw Data: %d \r\n",Raw_Data_MAX6675);
+    			PRINTF("%s", buffer);
+    			Print_MAX6675_Temp(Float_Temp_MAX6675);
+    		}*/
+    		snprintf(buffer, sizeof(buffer),"Raw Data: %d \r\n",Raw_Data_MAX6675);
+			PRINTF("%s", buffer);
     	}
     }
     return 0 ;
