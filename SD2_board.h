@@ -39,6 +39,7 @@
 /*==================[inclusions]=============================================*/
 #include "MKL46Z4.h"
 #include "stdbool.h"
+#include "fsl_spi.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -108,6 +109,11 @@ bool board_getSw(board_swId_enum id);
  **
  **/
 void board_configSPI0();
+
+/** \brief Configura Modo SPI Master
+ **
+ **/
+void board_SPI_Master_Config_Mode(spi_master_config_t *config);
 
 /** \Envia un dato por SPI
  **

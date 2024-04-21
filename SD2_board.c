@@ -51,6 +51,7 @@
 #define SPI_MASTER              SPI0
 #define SPI_MASTER_SOURCE_CLOCK kCLOCK_BusClk
 #define SPI_MASTER_CLK_FREQ     CLOCK_GetFreq(kCLOCK_BusClk)
+#define SPI_MODE_1
 
 /*==================[internal data declaration]==============================*/
 
@@ -141,9 +142,9 @@ void board_init(void)
 		GPIO_PinInit(board_gpioSw[i].gpio, board_gpioSw[i].pin, &gpio_sw_config);
 	}
 
-	/*Inicialización de los pines GPIO necesarios para manejar el display OLED*/
+	/*Inicialización de los pines GPIO necesarios para manejar la termocupla MAX6675*/
 
-	const port_pin_config_t port_oled_config = {
+	const port_pin_config_t port_max6675_config = {
 		/* Internal pull-up/down resistor is disabled */
 		.pullSelect = kPORT_PullDisable,
 		/* Fast slew rate is configured */
@@ -156,14 +157,14 @@ void board_init(void)
 		.mux = kPORT_MuxAsGpio,
 	};
 
-	gpio_pin_config_t gpio_oled_config =
+	gpio_pin_config_t gpio_max6675_config =
 	{
 		.outputLogic = 0,
 		.pinDirection = kGPIO_DigitalOutput,
 	};
 
-	PORT_SetPinConfig(PORTE, 16, &port_oled_config);
-	GPIO_PinInit(GPIOE, 16, &gpio_oled_config);
+	PORT_SetPinConfig(PORTE, 16, &port_max6675_config);
+	GPIO_PinInit(GPIOE, 16, &gpio_max6675_config);
 }
 
 void board_setLed(board_ledId_enum id, board_ledMsg_enum msg)
@@ -218,8 +219,52 @@ void board_configSPI0(){
 	spi_master_config_t userConfig;
 
 	SPI_MasterGetDefaultConfig(&userConfig);
+	board_SPI_Master_Config_Mode(&userConfig);
 	SPI_MasterInit(SPI_MASTER, &userConfig, SPI_MASTER_CLK_FREQ);
     SPI_MasterTransferCreateHandle(SPI_MASTER, &handle, NULL, NULL);
+}
+
+void board_SPI_Master_Config_Mode(spi_master_config_t *config){
+
+	/* MODO SPI 3 -  CPOL = 1 - CPHA = 1*/ // Func. OK
+
+	#ifdef SPI_MODE_3
+	config->polarity = kSPI_ClockPolarityActiveLow;
+	config->phase = kSPI_ClockPhaseSecondEdge;
+	#endif
+
+	/*!< Active-low SPI clock (idles high). */
+	/*!< First edge on SPSCK occurs at the start of the first cycle of a data transfer. */
+
+	/* MODO SPI 2 -  CPOL = 1 - CPHA = 0*/ // Func. MAL
+
+	#ifdef SPI_MODE_2
+	config->polarity = kSPI_ClockPolarityActiveLow;
+	config->phase = kSPI_ClockPhaseFirstEdge;
+	#endif
+
+	/*!< First edge on SPSCK occurs at the middle of the first cycle of a data transfer. */
+
+	/* MODO SPI 1 -  CPOL = 0 - CPHA = 1*/ // Func. OK
+
+	#ifdef SPI_MODE_1
+	config->polarity = kSPI_ClockPolarityActiveHigh;
+	config->phase = kSPI_ClockPhaseSecondEdge;
+	#endif
+
+	/*!< Active-high SPI clock (idles low). */
+
+	/* MODO SPI 0 -  CPOL = 0 - CPHA = 0*/ // Func. OK
+
+	#ifdef SPI_MODE_0
+	config->polarity = kSPI_ClockPolarityActiveHigh;
+	config->phase = kSPI_ClockPhaseFirstEdge;
+	#endif
+
+	config->baudRate_Bps = 500000U;
+	config->direction = kSPI_MsbFirst;
+	//config->direction = kSPI_LsbFirst;
+
 }
 
 void board_SPISend(uint8_t* buf, size_t len){

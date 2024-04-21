@@ -4,7 +4,7 @@
  *   Copyright 2009, Embedded Artists AB
  *   Copyright 2023, DSI FCEIA UNR - Sistemas Digitales 2
  *    DSI: http://www.dsi.fceia.unr.edu.ar/
- *   Copyright 2023, Juan Ignacio Biener
+ *   Copyright 2024, Juan Ignacio Biener
  *   All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,24 +49,14 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 
-typedef struct
-{
-	bool sensor;
-	uint8_t cifra1;
-    uint8_t cifra2;
-    uint8_t cifra3;
-    uint8_t cifra4;
-    float valor;
-    float temp;
-
-} MAX6675_Temp_t;
-
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions definition]==========================*/
 
-void MAX6675_ReadTemp(MAX6675_Temp_t *temp_MAX6675);
-void MAX6675_PrintTemp(MAX6675_Temp_t *temp_MAX6675);
+void MAX6675_Init(void);
+float MAX6675_Read_Float_Temp(void);
+uint16_t MAX6675_Read_Raw_Temp(void);
+bool MAX6675_Get_Sensor(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

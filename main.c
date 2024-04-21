@@ -46,10 +46,35 @@
 
 /*==================[internal data declaration]==============================*/
 
-static int32_t Temp_Max; // Temporizador para la medicion temperatura
-static MAX6675_Temp_t temp_MAX6675;
+static int32_t Time_Temp_Max; // Temporizador para la medicion temperatura
+static float Temp_MAX6675;
+static char buffer[100];
 
 /*==================[internal functions declaration]=========================*/
+
+void Print_MAX6675_Temp(float Temp){
+
+		/*Print the temperature to the serial terminal*/
+
+		uint8_t Temp_cifra1;
+		uint8_t Temp_cifra2;
+		uint8_t Temp_cifra3;
+		uint8_t Temp_cifra4;
+
+		//Migrar campos de cifra a parte entera y parte decimal.
+
+	 	Temp_cifra1 = (uint16_t)(Temp*100)/1000;
+	 	Temp_cifra2 = (uint16_t)(Temp*100)%1000/100;
+	 	Temp_cifra3 = (uint16_t)(Temp*100)%1000%100/10;
+	 	Temp_cifra4 = (uint16_t)(Temp*100)%1000%100%10;
+
+	 	snprintf(buffer, sizeof(buffer),
+			"Temperature: %d%d.%d%d C\r\n",
+			Temp_cifra1, Temp_cifra2,
+			Temp_cifra3, Temp_cifra4
+			);
+	 	PRINTF("%s", buffer);
+}
 
 /*==================[internal data definition]===============================*/
 
@@ -64,24 +89,30 @@ int main(void) {
     board_init();
     board_configSPI0();
 	SysTick_Config(SystemCoreClock / 1000U);
-	Temp_Max = TIEMPO_MUESTRAS;
+	Time_Temp_Max = TIEMPO_MUESTRAS;
 
     while(1) {
 
-    	if (Temp_Max == 0) {
-    		Temp_Max = TIEMPO_MUESTRAS;
-    		MAX6675_ReadTemp(&temp_MAX6675);
-    		MAX6675_PrintTemp(&temp_MAX6675);
+    	if (Time_Temp_Max == 0) {
+    		Time_Temp_Max = TIEMPO_MUESTRAS;
+    		Temp_MAX6675 = MAX6675_Read_Float_Temp();
+    		if (MAX6675_Get_Sensor())
+    		{
+				snprintf(buffer, sizeof(buffer),"Sensor Desconectado \r\n");
+				PRINTF("%s", buffer);
+			}
+    		else Print_MAX6675_Temp(Temp_MAX6675);
     	}
     }
     return 0 ;
 }
 
+
+
 void SysTick_Handler(void)
 {
-	//key_periodicTask1ms();
 
-	if (Temp_Max > 0) {
-		Temp_Max--;
+	if (Time_Temp_Max > 0) {
+		Time_Temp_Max--;
 	}
 }
