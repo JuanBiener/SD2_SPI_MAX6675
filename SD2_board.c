@@ -51,7 +51,7 @@
 #define SPI_MASTER              SPI0
 #define SPI_MASTER_SOURCE_CLOCK kCLOCK_BusClk
 #define SPI_MASTER_CLK_FREQ     CLOCK_GetFreq(kCLOCK_BusClk)
-#define SPI_MODE_1
+#define SPI_MODE_3
 
 /*==================[internal data declaration]==============================*/
 

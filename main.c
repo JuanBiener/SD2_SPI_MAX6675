@@ -42,13 +42,15 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define TIEMPO_MUESTRAS 500
+#define TIEMPO_MUESTRAS 2000
 
 /*==================[internal data declaration]==============================*/
 
 static int32_t Time_Temp_Max; // Temporizador para la medicion temperatura
 static float Float_Temp_MAX6675=0.0;
 static uint16_t Raw_Data_MAX6675=0;
+static uint8_t Raw_Data_0=0;
+static uint8_t Raw_Data_1=0;
 static char buffer[100];
 
 /*==================[internal functions declaration]=========================*/
@@ -98,6 +100,8 @@ int main(void) {
     		Time_Temp_Max = TIEMPO_MUESTRAS;
     		//Float_Temp_MAX6675 = MAX6675_Read_Float_Temp();
     		Raw_Data_MAX6675 = MAX6675_Read_Raw_Data();
+    		Raw_Data_0 = MAX6675_Get_8bit_Raw_Data_0();
+    		Raw_Data_1 = MAX6675_Get_8bit_Raw_Data_1();
     		/*if (MAX6675_Get_Sensor())
     		{
 				snprintf(buffer, sizeof(buffer),"Sensor Desconectado \r\n");
@@ -108,8 +112,13 @@ int main(void) {
     			PRINTF("%s", buffer);
     			Print_MAX6675_Temp(Float_Temp_MAX6675);
     		}*/
-    		snprintf(buffer, sizeof(buffer),"Raw Data: %d \r\n",Raw_Data_MAX6675);
+    		snprintf(buffer, sizeof(buffer),"Raw Data 0: %d \r\n",Raw_Data_0);
 			PRINTF("%s", buffer);
+			snprintf(buffer, sizeof(buffer),"Raw Data 1: %d \r\n",Raw_Data_1);
+			PRINTF("%s", buffer);
+			snprintf(buffer, sizeof(buffer),"Raw Data: %d \r\n",Raw_Data_MAX6675);
+			PRINTF("%s", buffer);
+
     	}
     }
     return 0 ;

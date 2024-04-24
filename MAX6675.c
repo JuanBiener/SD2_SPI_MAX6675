@@ -83,6 +83,17 @@ void MAX6675_SPI_Transfer(void){
 
 }
 
+uint8_t MAX6675_Get_8bit_Raw_Data_1(void) {
+
+	return MAX_6675_Data[1];
+
+}
+
+uint8_t MAX6675_Get_8bit_Raw_Data_0(void) {
+
+	return MAX_6675_Data[0];
+
+}
 
 uint16_t MAX6675_Read_Raw_Data(void) {
 
